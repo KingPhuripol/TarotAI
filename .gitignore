@@ -1,0 +1,20 @@
+# ── API Keys (NEVER commit this) ───────────────────────────────────────────────
+config.js
+
+# ── macOS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+
+# ── Data / ML files (not part of the web app) ──────────────────────────────────
+Tarot Readings.csv
+Tarot Train Dataset.py
+
+# ── Original image archive (images are served from deck-images/ instead) ───────
+Tarot Deck Archive/
+
+# ── Editor / OS ────────────────────────────────────────────────────────────────
+.vscode/
+*.log
+node_modules/
