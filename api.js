@@ -70,6 +70,11 @@ ${schema}`;
 }
 
 async function callOpenAIAPI(question, spread, cards) {
+  // ── Resolve key: config.js → hardcoded fallback ───────────────────────────
+  const _KEY = (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza"))
+    ? GEMINI_API_KEY
+    : "AIzaSyAF6A-Vb2J1oy5wr9gMTJEDK__EdQxEOrg";
+
   const GEMINI_ENDPOINT = (key) =>
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
 
@@ -90,47 +95,39 @@ async function callOpenAIAPI(question, spread, cards) {
     }
   };
 
-  // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
-  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza")) {
-    console.log("[api.js] Using Gemini API (local mode)");
-    try {
-      const res = await fetch(GEMINI_ENDPOINT(GEMINI_API_KEY), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiPayload(buildUserPrompt(question, spread, cards))),
-      });
-      if (!res.ok) { 
-        const e = await res.json().catch(() => ({})); 
-        throw new Error(e.error?.message || `Gemini API error: HTTP ${res.status}`); 
-      }
-      return parseGemini(await res.json());
-    } catch (error) {
-      console.error("[api.js] Gemini API error:", error);
-      throw error;
+  // ── Direct Gemini call (always) ───────────────────────────────────────────
+  console.log("[api.js] Calling Gemini API directly, key:", _KEY.slice(0, 8) + "...");
+  try {
+    const res = await fetch(GEMINI_ENDPOINT(_KEY), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(geminiPayload(buildUserPrompt(question, spread, cards))),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error?.message || `Gemini API error: HTTP ${res.status}`);
     }
+    return parseGemini(await res.json());
+  } catch (error) {
+    console.error("[api.js] Gemini API error:", error);
+    throw error;
   }
-
-  // ── Production (Vercel): serverless proxy ───────────────────────────────────
-  const res = await fetch("/api/reading", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userPrompt: buildUserPrompt(question, spread, cards) }),
-  });
-  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `HTTP ${res.status}`); }
-  return await res.json();
 }
 
 // ─── OpenAI Vision: detect a Tarot card from a base-64 image ────────────────
 async function detectCardFromImage(base64Data, mimeType = "image/jpeg") {
+  const _KEY = (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza"))
+    ? GEMINI_API_KEY
+    : "AIzaSyAF6A-Vb2J1oy5wr9gMTJEDK__EdQxEOrg";
+
   const visionPrompt = `You are an expert in the Rider-Waite-Smith Tarot deck. Look at this image and identify the Tarot card shown.
 Respond with ONLY this JSON (no markdown): {"card_name":"Exact name","reversed":false,"confidence":"high","notes":""}
 Rules: card_name must be exact English RWS name. reversed=true if upside down. confidence: high|medium|low. If no card visible set card_name to null.`;
 
-  // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
-  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza")) {
-    console.log("[api.js] Using Gemini Vision API (local mode)");
+  if (_KEY) {
+    console.log("[api.js] Using Gemini Vision API directly");
     try {
-      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_KEY}`;
       const payload = {
         contents: [{ parts: [
           { text: visionPrompt },
