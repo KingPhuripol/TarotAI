@@ -143,16 +143,22 @@
     <!-- โหลด config.js เพื่อเอา GEMINI_API_KEY -->
     <script src="config.js?v=3"></script>
     <script>
-        // fallback: ถ้า config.js โหลดไม่ได้ ใส่ key ตรงนี้
-        const _GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY)
+        // Key มาจาก config.js เท่านั้น (gitignored)
+        const _GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY && GEMINI_API_KEY.startsWith('AIza'))
             ? GEMINI_API_KEY
-            : "AIzaSyAF6A-Vb2J1oy5wr9gMTJEDK__EdQxEOrg";
+            : null;
 
-        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_GEMINI_KEY}`;
+        const GEMINI_URL = _GEMINI_KEY
+            ? `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_GEMINI_KEY}`
+            : null;
 
         // ตรวจสอบ API Key
         const apiStatus = document.getElementById('api-status');
-        apiStatus.innerHTML = '<span class="status ok">✅ Key: ' + _GEMINI_KEY.slice(0,8) + '... (พร้อมใช้งาน)</span>';
+        if (_GEMINI_KEY) {
+            apiStatus.innerHTML = '<span class="status ok">✅ Key: ' + _GEMINI_KEY.slice(0,8) + '... (พร้อมใช้งาน)</span>';
+        } else {
+            apiStatus.innerHTML = '<span class="status fail">❌ ไม่พบ GEMINI_API_KEY ใน config.js</span>';
+        }
 
         async function testReadingAPI() {
             const btn = document.getElementById('btn-test-reading');
@@ -162,6 +168,7 @@
             resultDiv.innerHTML = '';
 
             try {
+                if (!GEMINI_URL) throw new Error('ไม่พบ GEMINI_API_KEY กรุณาตรวจสอบ config.js');
                 const payload = {
                     systemInstruction: { parts: [{ text: "You are a Tarot reader. Respond entirely in Thai. Return only valid JSON, no markdown." }] },
                     contents: [{ role: "user", parts: [{ text: `วิเคราะห์ไพ่ทาโรต์สำหรับคำถาม "ความรักของฉันเป็นอย่างไร":

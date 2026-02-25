@@ -15,3 +15,9 @@ Tarot Deck Archive/
 .vscode/
 *.log
 node_modules/
+
+# ── API Keys (never commit — use config.example.js as template) ──────────────
+config.js
+.env
+.env.local
+.env*.local
