@@ -70,30 +70,69 @@ ${schema}`;
 }
 
 async function callOpenAIAPI(question, spread, cards) {
-  try {
-    const res = await fetch("/api/reading", {
+  const GEMINI_ENDPOINT = (key) =>
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${key}`;
+
+  const geminiPayload = (prompt) => ({
+    systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+    contents: [{ role: "user", parts: [{ text: prompt }] }],
+    generationConfig: { responseMimeType: "application/json", temperature: 0.85, maxOutputTokens: 2048 },
+  });
+
+  const parseGemini = (data) => {
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    return JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+  };
+
+  // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
+  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY) {
+    const res = await fetch(GEMINI_ENDPOINT(GEMINI_API_KEY), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userPrompt: buildUserPrompt(question, spread, cards) }),
+      body: JSON.stringify(geminiPayload(buildUserPrompt(question, spread, cards))),
     });
-    if (!res.ok) {
-      const errData = await res.json().catch(() => ({}));
-      throw new Error(errData.error || `HTTP ${res.status}`);
-    }
-    return await res.json();
-  } catch (err) {
-    console.error("Reading API error:", err);
-    // On localhost, fall back to mock (no serverless functions — run `vercel dev` for live API)
-    if (["localhost", "127.0.0.1"].includes(location.hostname)) {
-      console.warn("⚠ Local mode — returning mock reading.");
-      return getMockReading(question, spread, cards);
-    }
-    throw err;
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+    return parseGemini(await res.json());
   }
+
+  // ── Production (Vercel): serverless proxy ───────────────────────────────────
+  const res = await fetch("/api/reading", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userPrompt: buildUserPrompt(question, spread, cards) }),
+  });
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.error || `HTTP ${res.status}`); }
+  return await res.json();
 }
 
 // ─── OpenAI Vision: detect a Tarot card from a base-64 image ────────────────
 async function detectCardFromImage(base64Data, mimeType = "image/jpeg") {
+  const visionPrompt = `You are an expert in the Rider-Waite-Smith Tarot deck. Look at this image and identify the Tarot card shown.
+Respond with ONLY this JSON (no markdown): {"card_name":"Exact name","reversed":false,"confidence":"high","notes":""}
+Rules: card_name must be exact English RWS name. reversed=true if upside down. confidence: high|medium|low. If no card visible set card_name to null.`;
+
+  // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
+  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY) {
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const payload = {
+      contents: [{ parts: [
+        { text: visionPrompt },
+        { inlineData: { mimeType, data: base64Data } },
+      ]}],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens: 256 },
+    };
+    const res = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
+    const data = await res.json();
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    return JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+  }
+
+  // ── Production (Vercel): call serverless proxy ─────────────────────────────
   const res = await fetch("/api/vision", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
