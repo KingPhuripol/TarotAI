@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ARCANUM API Test</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a0033 0%, #0a001a 100%);
+            color: #faebd7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #d4a35a;
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(212, 163, 90, 0.5);
+        }
+        .subtitle {
+            text-align: center;
+            color: #a78bb8;
+            margin-bottom: 3rem;
+            font-size: 1.1rem;
+        }
+        .test-section {
+            background: rgba(14, 6, 36, 0.8);
+            border: 1px solid rgba(212, 163, 90, 0.3);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        button {
+            background: linear-gradient(135deg, #d4a35a 0%, #b8894a 100%);
+            color: #1a0033;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(212, 163, 90, 0.4);
+        }
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .result {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(212, 163, 90, 0.2);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        .result h3 {
+            color: #d4a35a;
+            margin-bottom: 1rem;
+        }
+        .result pre {
+            color: #98fb98;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .error {
+            background: rgba(139, 26, 26, 0.3);
+            border-color: #8b1a1a;
+        }
+        .error pre {
+            color: #ff6b6b;
+        }
+        .success {
+            background: rgba(34, 139, 34, 0.2);
+            border-color: #228b22;
+        }
+        .info {
+            text-align: center;
+            color: #a78bb8;
+            margin-top: 2rem;
+            font-size: 0.9rem;
+        }
+        .status {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+        .status.ok {
+            background: rgba(34, 139, 34, 0.3);
+            color: #98fb98;
+        }
+        .status.fail {
+            background: rgba(139, 26, 26, 0.3);
+            color: #ff6b6b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔮 ARCANUM API TEST</h1>
+        <p class="subtitle">ทดสอบการเชื่อมต่อ Gemini 2.5 Flash API</p>
+
+        <div class="test-section">
+            <h2>📖 Tarot Reading API</h2>
+            <button id="btn-test-reading" onclick="testReadingAPI()">
+                ทดสอบ Gemini API (โดยตรง)
+            </button>
+            <div id="reading-result"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📷 Vision API (Card Detection)</h2>
+            <button id="btn-test-vision" onclick="testVisionAPI()" disabled>
+                ทดสอบ /api/vision (ต้องมีรูปภาพ)
+            </button>
+            <div id="vision-result"></div>
+        </div>
+
+        <div class="info">
+            <p>🔑 API Key: <span id="api-status">กำลังตรวจสอบ...</span></p>
+            <p>🌐 Server: http://localhost:8080</p>
+            <p>⚡ Model: Gemini 2.5 Flash</p>
+        </div>
+    </div>
+
+    <!-- โหลด config.js เพื่อเอา GEMINI_API_KEY -->
+    <script src="config.js?v=3"></script>
+    <script>
+        // fallback: ถ้า config.js โหลดไม่ได้ ใส่ key ตรงนี้
+        const _GEMINI_KEY = (typeof GEMINI_API_KEY !== 'undefined' && GEMINI_API_KEY)
+            ? GEMINI_API_KEY
+            : "AIzaSyAF6A-Vb2J1oy5wr9gMTJEDK__EdQxEOrg";
+
+        const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${_GEMINI_KEY}`;
+
+        // ตรวจสอบ API Key
+        const apiStatus = document.getElementById('api-status');
+        apiStatus.innerHTML = '<span class="status ok">✅ Key: ' + _GEMINI_KEY.slice(0,8) + '... (พร้อมใช้งาน)</span>';
+
+        async function testReadingAPI() {
+            const btn = document.getElementById('btn-test-reading');
+            const resultDiv = document.getElementById('reading-result');
+            btn.disabled = true;
+            btn.textContent = '⏳ กำลังเรียก Gemini...';
+            resultDiv.innerHTML = '';
+
+            try {
+                const payload = {
+                    systemInstruction: { parts: [{ text: "You are a Tarot reader. Respond entirely in Thai. Return only valid JSON, no markdown." }] },
+                    contents: [{ role: "user", parts: [{ text: `วิเคราะห์ไพ่ทาโรต์สำหรับคำถาม "ความรักของฉันเป็นอย่างไร":
+ไพ่ 1 (อดีต): The Lovers (หน้าตรง)
+ไพ่ 2 (ปัจจุบัน): Three of Swords (หน้าตรง)
+ไพ่ 3 (อนาคต): The Star (หน้าตรง)
+
+ตอบเป็น JSON: {"summary":"...","advice":"...","energy_score":7}` }] }],
+                    generationConfig: { responseMimeType: "application/json", temperature: 0.85, maxOutputTokens: 4096 },
+                };
+
+                const res = await fetch(GEMINI_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const err = await res.json().catch(() => ({}));
+                    throw new Error(`HTTP ${res.status}: ${err.error?.message || JSON.stringify(err)}`);
+                }
+
+                const data = await res.json();
+                const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
+                const result = JSON.parse(text.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim());
+
+                resultDiv.innerHTML = `
+                    <div class="result success">
+                        <h3>✅ Gemini API ทำงานสำเร็จ!</h3>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="result error">
+                        <h3>❌ เกิดข้อผิดพลาด</h3>
+                        <pre>${error.message}</pre>
+                    </div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'ทดสอบ Gemini API';
+            }
+        }
+
+        async function testVisionAPI() {
+            document.getElementById('vision-result').innerHTML = `
+                <div class="result"><h3>⚠️ ต้องการรูปภาพ</h3>
+                <p>ใช้ฟีเจอร์กล้องในเว็บหลักเพื่อทดสอบ Vision API</p></div>`;
+        }
+    </script>
+</body>
+</html>

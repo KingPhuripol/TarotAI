@@ -1,6 +1,6 @@
-// ─── OpenAI API Integration ───────────────────────────────────────────────────
-// All API calls are proxied through Vercel serverless functions (/api/reading, /api/vision).
-// The OpenAI API key lives in Vercel Environment Variables — never in client code.
+// ─── Gemini API Integration ───────────────────────────────────────────────────
+// Local dev: Direct Gemini API call | Production: Vercel serverless proxy
+// Last updated: 2026-02-26 01:00 UTC
 
 const SYSTEM_PROMPT = `You are 'The Arcana Oracle', a supremely knowledgeable Tarot reader specialising in the Rider-Waite-Smith tradition. You possess deep mastery over symbolism, numerology, Kabbalistic pathways, elemental correspondences (Fire, Water, Earth, Air), and astrological associations embedded in every card.
 
@@ -76,23 +76,38 @@ async function callOpenAIAPI(question, spread, cards) {
   const geminiPayload = (prompt) => ({
     systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
     contents: [{ role: "user", parts: [{ text: prompt }] }],
-    generationConfig: { responseMimeType: "application/json", temperature: 0.85, maxOutputTokens: 2048 },
+    generationConfig: { responseMimeType: "application/json", temperature: 0.85, maxOutputTokens: 8192 },
   });
 
   const parseGemini = (data) => {
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-    return JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+    const text = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error("[api.js] JSON parse failed. Raw text:", text.slice(0, 200));
+      throw new Error("การตอบสนองจาก AI ไม่สมบูรณ์ กรุณาลองใหม่อีกครั้ง (JSON parse error)");
+    }
   };
 
   // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
-  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY) {
-    const res = await fetch(GEMINI_ENDPOINT(GEMINI_API_KEY), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(geminiPayload(buildUserPrompt(question, spread, cards))),
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
-    return parseGemini(await res.json());
+  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza")) {
+    console.log("[api.js] Using Gemini API (local mode)");
+    try {
+      const res = await fetch(GEMINI_ENDPOINT(GEMINI_API_KEY), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(geminiPayload(buildUserPrompt(question, spread, cards))),
+      });
+      if (!res.ok) { 
+        const e = await res.json().catch(() => ({})); 
+        throw new Error(e.error?.message || `Gemini API error: HTTP ${res.status}`); 
+      }
+      return parseGemini(await res.json());
+    } catch (error) {
+      console.error("[api.js] Gemini API error:", error);
+      throw error;
+    }
   }
 
   // ── Production (Vercel): serverless proxy ───────────────────────────────────
@@ -112,24 +127,33 @@ Respond with ONLY this JSON (no markdown): {"card_name":"Exact name","reversed":
 Rules: card_name must be exact English RWS name. reversed=true if upside down. confidence: high|medium|low. If no card visible set card_name to null.`;
 
   // ── Local dev: Gemini key ใน config.js ───────────────────────────────────
-  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY) {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-    const payload = {
-      contents: [{ parts: [
-        { text: visionPrompt },
-        { inlineData: { mimeType, data: base64Data } },
-      ]}],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens: 256 },
-    };
-    const res = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    if (!res.ok) { const e = await res.json(); throw new Error(e.error?.message || `HTTP ${res.status}`); }
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-    return JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+  if (typeof GEMINI_API_KEY !== "undefined" && GEMINI_API_KEY && GEMINI_API_KEY.startsWith("AIza")) {
+    console.log("[api.js] Using Gemini Vision API (local mode)");
+    try {
+      const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+      const payload = {
+        contents: [{ parts: [
+          { text: visionPrompt },
+          { inlineData: { mimeType, data: base64Data } },
+        ]}],
+        generationConfig: { responseMimeType: "application/json", temperature: 0.1, maxOutputTokens: 256 },
+      };
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) { 
+        const e = await res.json().catch(() => ({})); 
+        throw new Error(e.error?.message || `Gemini Vision API error: HTTP ${res.status}`); 
+      }
+      const data = await res.json();
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+      return JSON.parse(text.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim());
+    } catch (error) {
+      console.error("[api.js] Gemini Vision API error:", error);
+      throw error;
+    }
   }
 
   // ── Production (Vercel): call serverless proxy ─────────────────────────────
