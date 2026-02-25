@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "name": "arcanum-tarot",
+  "buildCommand": null,
+  "outputDirectory": ".",
+  "functions": {
+    "api/reading.js": { "maxDuration": 30 },
+    "api/vision.js":  { "maxDuration": 30 }
+  },
+  "routes": [
+    { "src": "/api/reading", "dest": "/api/reading.js" },
+    { "src": "/api/vision",  "dest": "/api/vision.js"  },
+    { "src": "/(.*)",        "dest": "/$1"              }
+  ]
+}

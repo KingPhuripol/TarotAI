@@ -1,7 +1,6 @@
 // ─── OpenAI API Integration ───────────────────────────────────────────────────
-// OPENAI_API_KEY is loaded from config.js (not committed to git — see .gitignore)
-const OPENAI_MODEL = "gpt-4o";
-const OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions";
+// All API calls are proxied through Vercel serverless functions (/api/reading, /api/vision).
+// The OpenAI API key lives in Vercel Environment Variables — never in client code.
 
 const SYSTEM_PROMPT = `You are 'The Arcana Oracle', a supremely knowledgeable Tarot reader specialising in the Rider-Waite-Smith tradition. You possess deep mastery over symbolism, numerology, Kabbalistic pathways, elemental correspondences (Fire, Water, Earth, Air), and astrological associations embedded in every card.
 
@@ -71,108 +70,40 @@ ${schema}`;
 }
 
 async function callOpenAIAPI(question, spread, cards) {
-  if (!OPENAI_API_KEY || OPENAI_API_KEY === "YOUR_OPENAI_API_KEY_HERE") {
-    return getMockReading(question, spread, cards);
-  }
-
-  const payload = {
-    model: OPENAI_MODEL,
-    temperature: 0.85,
-    max_tokens: 2048,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
-      { role: "user", content: buildUserPrompt(question, spread, cards) },
-    ],
-  };
-
   try {
-    const response = await fetch(OPENAI_ENDPOINT, {
+    const res = await fetch("/api/reading", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${OPENAI_API_KEY}`,
-      },
-      body: JSON.stringify(payload),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userPrompt: buildUserPrompt(question, spread, cards) }),
     });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error?.message || `HTTP ${response.status}`);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.error || `HTTP ${res.status}`);
     }
-
-    const data = await response.json();
-    const text = data.choices?.[0]?.message?.content || "";
-    const cleaned = text
-      .replace(/```json\n?/g, "")
-      .replace(/```\n?/g, "")
-      .trim();
-    return JSON.parse(cleaned);
+    return await res.json();
   } catch (err) {
-    console.error("OpenAI API error:", err);
+    console.error("Reading API error:", err);
+    // On localhost, fall back to mock (no serverless functions — run `vercel dev` for live API)
+    if (["localhost", "127.0.0.1"].includes(location.hostname)) {
+      console.warn("⚠ Local mode — returning mock reading.");
+      return getMockReading(question, spread, cards);
+    }
     throw err;
   }
 }
 
 // ─── OpenAI Vision: detect a Tarot card from a base-64 image ────────────────
 async function detectCardFromImage(base64Data, mimeType = "image/jpeg") {
-  const visionPrompt = `You are an expert in the Rider-Waite-Smith Tarot deck.
-Look at this image and identify the Tarot card shown.
-
-Respond with ONLY this JSON (no markdown, no extra text):
-{
-  "card_name": "Exact card name e.g. The Moon, Ace of Cups, King of Wands, Three of Swords",
-  "reversed": false,
-  "confidence": "high",
-  "notes": "Optional brief note"
-}
-
-Rules:
-- card_name must be the exact English name from the Rider-Waite-Smith deck
-- reversed is true if the card appears upside down in the image
-- confidence: "high" | "medium" | "low"
-- If no Tarot card is visible, set card_name to null`;
-
-  const payload = {
-    model: OPENAI_MODEL,
-    temperature: 0.1,
-    max_tokens: 256,
-    response_format: { type: "json_object" },
-    messages: [
-      {
-        role: "user",
-        content: [
-          { type: "text", text: visionPrompt },
-          {
-            type: "image_url",
-            image_url: { url: `data:${mimeType};base64,${base64Data}` },
-          },
-        ],
-      },
-    ],
-  };
-
-  const response = await fetch(OPENAI_ENDPOINT, {
+  const res = await fetch("/api/vision", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify(payload),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ base64Data, mimeType }),
   });
-
-  if (!response.ok) {
-    const err = await response.json();
-    throw new Error(err.error?.message || `HTTP ${response.status}`);
+  if (!res.ok) {
+    const errData = await res.json().catch(() => ({}));
+    throw new Error(errData.error || `HTTP ${res.status}`);
   }
-
-  const data = await response.json();
-  const text = data.choices?.[0]?.message?.content || "";
-  const cleaned = text
-    .replace(/```json\n?/g, "")
-    .replace(/```\n?/g, "")
-    .trim();
-  return JSON.parse(cleaned);
+  return await res.json();
 }
 
 // ─── Find a card in TAROT_CARDS by name (fuzzy) ───────────────────────────────
