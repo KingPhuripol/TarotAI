@@ -19,8 +19,8 @@ body {
   background: #04010a;
   color: #e8dff0;
   font-family: "EB Garamond", "Sarabun", Georgia, serif;
-  font-size: 1.1rem;
-  line-height: 1.75;
+  font-size: clamp(1.05rem, 1.8vw + 0.5rem, 1.2rem);
+  line-height: 1.85;
   min-height: 100vh;
   overflow-x: hidden;
 }
@@ -116,16 +116,16 @@ h3,
   color: var(--gold);
 }
 .h2 {
-  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  font-size: clamp(1.75rem, 4.5vw, 2.6rem);
   font-weight: 600;
   color: var(--gold-pale);
-  line-height: 1.25;
+  line-height: 1.2;
   margin-top: 0.5rem;
 }
 .body-text {
-  font-size: 1.05rem;
+  font-size: clamp(1rem, 2vw, 1.15rem);
   color: var(--text-muted);
-  line-height: 1.8;
+  line-height: 1.9;
   margin-bottom: 1rem;
 }
 strong {
@@ -1230,35 +1230,91 @@ strong {
   text-align: center;
 }
 .footer-inner {
-  max-width: 580px;
+  max-width: 620px;
   margin: 0 auto;
+}
+
+/* ── ARCANUM × AREA ZERO brand row ── */
+.footer-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.2rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 .footer-brand {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  margin-bottom: 0.5rem;
+  gap: 0.5rem;
 }
 .footer-name {
   font-family: "Cinzel", serif;
-  letter-spacing: 0.12em;
-  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+  font-size: clamp(0.85rem, 2vw, 1rem);
   color: var(--gold-pale);
+  font-weight: 600;
 }
+.footer-cross {
+  font-family: "Cinzel", serif;
+  font-size: clamp(0.75rem, 1.8vw, 0.9rem);
+  color: rgba(201, 152, 74, 0.38);
+  user-select: none;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+}
+
+/* AREA ZERO PNG logo link */
+.footer-az-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid rgba(0, 217, 163, 0.18);
+  background: rgba(0, 217, 163, 0.05);
+  transition: all 0.35s ease;
+}
+.footer-az-link:hover {
+  border-color: rgba(0, 217, 163, 0.45);
+  background: rgba(0, 217, 163, 0.1);
+  box-shadow: 0 0 28px rgba(0, 217, 163, 0.18), 0 6px 20px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
+}
+.footer-az-img {
+  height: clamp(28px, 5vw, 40px);
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 0 8px rgba(0, 217, 163, 0.35));
+  transition: filter 0.35s ease, transform 0.35s ease;
+}
+.footer-az-link:hover .footer-az-img {
+  filter: drop-shadow(0 0 18px rgba(0, 217, 163, 0.7)) brightness(1.08);
+  transform: scale(1.04);
+}
+/* remove old text/icon styles (kept for safety) */
+.footer-az-icon { display: none; }
+.footer-az-text { display: none; }
+.footer-az-name { display: none; }
+.footer-az-sub  { display: none; }
+
 .footer-tag {
   font-family: "Cinzel", serif;
-  font-size: 0.72rem;
+  font-size: clamp(0.65rem, 1.4vw, 0.72rem);
   letter-spacing: 0.1em;
   color: var(--gold);
   opacity: 0.7;
-  margin-bottom: 1rem;
+  margin-bottom: 0.9rem;
 }
 .footer-disc {
-  font-size: 0.82rem;
+  font-size: clamp(0.78rem, 1.4vw, 0.85rem);
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: 1.7;
   margin-bottom: 1.5rem;
+  max-width: 480px;
+  margin-left: auto;
+  margin-right: auto;
 }
 .footer-line {
   height: 1px;
@@ -1268,11 +1324,20 @@ strong {
 }
 .footer-bottom {
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 1.5rem;
-  font-size: 0.75rem;
+  gap: 0.6rem;
+  row-gap: 0.25rem;
+  font-size: clamp(0.65rem, 1.6vw, 0.78rem);
   color: var(--text-dim);
   flex-wrap: wrap;
+  letter-spacing: 0.03em;
+}
+.footer-sep {
+  color: rgba(201, 152, 74, 0.32);
+  user-select: none;
+  font-size: 0.55rem;
+  line-height: 1;
 }
 
 /* ══════════════════════════════════════════
@@ -3076,4 +3141,976 @@ strong {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ✨  ARCANUM  —  ENHANCED VISUAL EFFECTS  v2.0
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── New Keyframe Animations ─────────────────────────────────────── */
+@keyframes textShimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+@keyframes auroraFloat {
+  0%,100% { opacity: 0.5; transform: translate(0,0) scale(1); }
+  33%     { opacity: 0.9; transform: translate(60px,-40px) scale(1.15); }
+  66%     { opacity: 0.4; transform: translate(-40px,50px) scale(0.9); }
+}
+@keyframes rippleOut {
+  0%   { transform: translate(-50%,-50%) scale(0); opacity: 0.7; }
+  100% { transform: translate(-50%,-50%) scale(5); opacity: 0; }
+}
+@keyframes sigilPulse {
+  0%,100% {
+    filter: drop-shadow(0 0 8px rgba(201,152,74,.5));
+    transform: rotate(0deg) scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 28px rgba(201,152,74,.9));
+    transform: rotate(180deg) scale(1.06);
+  }
+}
+@keyframes pulseRing {
+  0%   { transform: translate(-50%,-50%) scale(1); opacity: 0.6; }
+  100% { transform: translate(-50%,-50%) scale(2.5); opacity: 0; }
+}
+@keyframes sweepLight {
+  0%   { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(400%)  skewX(-20deg); }
+}
+@keyframes floatRune {
+  0%,100% { transform: translateY(0) rotate(0deg); opacity: var(--rune-opacity, 0.12); }
+  50%     { transform: translateY(-22px) rotate(14deg); opacity: calc(var(--rune-opacity, 0.12) * 2.5); }
+}
+@keyframes readingSlide {
+  from { opacity: 0; transform: translateX(-24px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes mysticalReveal {
+  0%   { opacity: 0; transform: translateY(32px) scale(0.95); filter: blur(10px); }
+  100% { opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes scrollBarPulse {
+  0%,100% { height: 36px; opacity: 0.5; }
+  50%     { height: 52px;  opacity: 1; }
+}
+@keyframes crystalGrow {
+  from { transform: scale(0.8) rotate(-5deg); opacity: 0; }
+  to   { transform: scale(1)   rotate(0deg);  opacity: 1; }
+}
+@keyframes haloExpand {
+  0%   { transform: translate(-50%,-50%) scale(0.9); opacity: 0.7; }
+  100% { transform: translate(-50%,-50%) scale(2.8); opacity: 0; }
+}
+@keyframes oracleBorderGlow {
+  0%,100% { box-shadow: 0 0 30px rgba(201,152,74,.06), 0 0 60px rgba(139,26,26,.08), inset 0 0 40px rgba(139,26,26,.04); }
+  50%     { box-shadow: 0 0 60px rgba(201,152,74,.14), 0 0 100px rgba(139,26,26,.15), inset 0 0 60px rgba(139,26,26,.08); }
+}
+@keyframes ldOracleRotate {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Aurora Background ───────────────────────────────────────────── */
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.aurora-layer {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform, opacity;
+}
+.aurora-layer:nth-child(1) {
+  width: 80vw; height: 60vh;
+  background: radial-gradient(ellipse, rgba(139,26,26,.13) 0%, transparent 65%);
+  top: -20vh; left: -15vw;
+  animation: auroraFloat 28s ease-in-out infinite;
+}
+.aurora-layer:nth-child(2) {
+  width: 65vw; height: 55vh;
+  background: radial-gradient(ellipse, rgba(80,0,150,.09) 0%, transparent 65%);
+  top: 35vh; right: -15vw;
+  animation: auroraFloat 24s ease-in-out infinite reverse;
+  animation-delay: -10s;
+}
+.aurora-layer:nth-child(3) {
+  width: 70vw; height: 45vh;
+  background: radial-gradient(ellipse, rgba(201,152,74,.05) 0%, transparent 65%);
+  bottom: -5vh; left: 15vw;
+  animation: auroraFloat 35s ease-in-out infinite;
+  animation-delay: -18s;
+}
+
+/* ── Sparkle Canvas ──────────────────────────────────────────────── */
+#sparkle-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+}
+
+/* ── ARCANUM Title — Gradient Shimmer ───────────────────────────── */
+.ht-main {
+  background: linear-gradient(
+    135deg,
+    #f5e4c0 0%, #e8c070 18%, #c9984a 35%,
+    #f5e4c0 50%, #c9984a 65%, #e8c070 82%, #f5e4c0 100%
+  );
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 7s linear infinite;
+  filter: drop-shadow(0 2px 40px rgba(201,152,74,.4));
+  will-change: background-position;
+}
+
+/* ── Eyebrow dot glow ────────────────────────────────────────────── */
+.eyebrow-dot {
+  box-shadow: 0 0 10px rgba(180,30,30,.9), 0 0 22px rgba(180,30,30,.4);
+  animation: goldPulse 2s ease-in-out infinite;
+}
+
+/* ── Hero Floating Runes ─────────────────────────────────────────── */
+.hero-rune {
+  position: absolute;
+  font-family: "Cinzel Decorative", "Cinzel", serif;
+  pointer-events: none;
+  user-select: none;
+  font-size: var(--rune-size, 1rem);
+  color: rgba(201, 152, 74, var(--rune-opacity, 0.12));
+  animation: floatRune var(--rune-dur, 8s) ease-in-out infinite;
+  animation-delay: var(--rune-delay, 0s);
+  will-change: transform, opacity;
+  z-index: 1;
+}
+
+/* ── Hero Pills — Enhanced ───────────────────────────────────────── */
+.hero-pill {
+  background: rgba(201,152,74,.07);
+  border: 1px solid rgba(201,152,74,.22);
+  border-radius: var(--r-md);
+  padding: .5rem 1rem;
+  transition: all .35s var(--ease-bounce);
+}
+.hero-pill:hover {
+  background: rgba(201,152,74,.14);
+  border-color: var(--gold);
+  transform: translateY(-3px) scale(1.06);
+  box-shadow: 0 10px 28px rgba(0,0,0,.35), 0 0 22px rgba(201,152,74,.18);
+}
+.pill-n { filter: drop-shadow(0 0 6px rgba(201,152,74,.45)); font-size: 1.2rem; }
+
+/* ── Orbit Rings — Glow ──────────────────────────────────────────── */
+.ring-a { box-shadow: 0 0 40px rgba(201,152,74,.08), inset 0 0 40px rgba(201,152,74,.04); }
+.ring-b { box-shadow: 0 0 30px rgba(139,26,26,.15),  inset 0 0 20px rgba(139,26,26,.08);  }
+.ring-c { box-shadow: 0 0 20px rgba(201,152,74,.12); }
+.center-glyph {
+  filter: drop-shadow(0 0 24px rgba(201,152,74,.55));
+  animation: breathe 5s ease-in-out infinite;
+}
+.orbit-card {
+  box-shadow: 0 8px 32px rgba(0,0,0,.6), 0 0 20px rgba(201,152,74,.12), inset 0 1px 0 rgba(255,255,255,.08);
+  transition: all .3s ease;
+}
+
+/* ── Scroll Bar Indicator ────────────────────────────────────────── */
+.scroll-bar {
+  background: linear-gradient(to bottom, var(--gold), rgba(201,152,74,.1));
+  box-shadow: 0 0 10px rgba(201,152,74,.35);
+  animation: scrollBarPulse 2.5s ease-in-out infinite;
+}
+
+/* ── Buttons — Shimmer Sweep + Glow ─────────────────────────────── */
+.btn-crimson {
+  background: linear-gradient(135deg, #8b1a1a 0%, #b52020 50%, #8b1a1a 100%);
+  background-size: 200% auto;
+  overflow: hidden;
+}
+.btn-crimson::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: skewX(-20deg);
+  animation: sweepLight 4s ease-in-out infinite;
+  animation-delay: 1.5s;
+  pointer-events: none;
+}
+.btn-crimson:hover:not(:disabled) {
+  background-position: right center;
+  box-shadow: 0 0 30px rgba(139,26,26,.7), 0 0 60px rgba(139,26,26,.3), inset 0 1px 0 rgba(255,255,255,.15);
+  transform: translateY(-3px) scale(1.02);
+}
+.btn-outline {
+  overflow: hidden;
+}
+.btn-outline::before {
+  content: "";
+  position: absolute;
+  top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,152,74,.1), transparent);
+  transform: skewX(-20deg);
+  animation: sweepLight 5s ease-in-out infinite;
+  animation-delay: 3s;
+  pointer-events: none;
+}
+/* Ripple span */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  width: 16px; height: 16px;
+  background: rgba(255,255,255,.3);
+  animation: rippleOut .7s ease-out forwards;
+  pointer-events: none;
+  transform: translate(-50%,-50%) scale(0);
+}
+
+/* ── NAV — Liquid Glass ──────────────────────────────────────────── */
+.nav.scrolled {
+  background: rgba(4,1,10,.78);
+  backdrop-filter: blur(28px) saturate(180%);
+  border-bottom-color: rgba(201,152,74,.22);
+  box-shadow: 0 1px 0 rgba(201,152,74,.14), 0 8px 40px rgba(0,0,0,.6);
+}
+.nav-brand:hover .nav-sigil {
+  filter: drop-shadow(0 0 12px rgba(201,152,74,.7));
+}
+
+/* ── Loading Overlay — Halo System ──────────────────────────────── */
+.ld-ring-outer {
+  position: relative;
+  width: 100px; height: 100px;
+  margin-bottom: 1rem;
+}
+.ld-ring-outer .ld-ring {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+}
+.ld-halo {
+  position: absolute;
+  top: 50%; left: 50%;
+  border-radius: 50%;
+  border: 1px solid rgba(201,152,74,.25);
+}
+.ld-halo-a { width: 90px; height: 90px; animation: haloExpand 2.4s ease-out infinite; }
+.ld-halo-b { width: 90px; height: 90px; animation: haloExpand 2.4s ease-out infinite; animation-delay: .8s; }
+.ld-halo-c { width: 90px; height: 90px; animation: haloExpand 2.4s ease-out infinite; animation-delay: 1.6s; }
+.ld-oracle-symbol {
+  margin-top: .25rem;
+  animation: ldOracleRotate 12s linear infinite;
+  filter: drop-shadow(0 0 12px rgba(201,152,74,.5));
+  opacity: .7;
+}
+
+/* ── Section Headings — Gradient ─────────────────────────────────── */
+.section-head .h2,
+.phase-head .h2 {
+  background: linear-gradient(135deg, var(--gold-pale) 0%, var(--gold-light) 50%, var(--gold-pale) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 8s linear infinite;
+}
+
+/* ── About — Mandala + Float Cards ──────────────────────────────── */
+.mandala-svg {
+  animation: spin 90s linear infinite;
+  opacity: .75;
+  filter: drop-shadow(0 0 20px rgba(201,152,74,.14));
+}
+.float-card {
+  box-shadow: 0 12px 40px rgba(0,0,0,.6), 0 0 25px rgba(201,152,74,.12), inset 0 1px 0 rgba(255,255,255,.07);
+  transition: all .4s ease;
+  backdrop-filter: blur(12px);
+}
+.float-card:hover {
+  transform: translateY(-6px) scale(1.04);
+  border-color: var(--gold);
+  box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 40px rgba(201,152,74,.25), inset 0 1px 0 rgba(201,152,74,.15);
+}
+
+/* ── Pillar Dots — Vivid Glow ────────────────────────────────────── */
+.pillar-dot.fire  { box-shadow: 0 0 12px #e55, 0 0 24px rgba(229,85,85,.4); }
+.pillar-dot.water { box-shadow: 0 0 12px #5599dd, 0 0 24px rgba(85,153,221,.4); }
+.pillar-dot.air   { box-shadow: 0 0 12px #b09ae0, 0 0 24px rgba(176,154,224,.4); }
+
+/* ── Steps — Sweep + Hover ───────────────────────────────────────── */
+.step {
+  position: relative;
+  overflow: hidden;
+  transition: all .4s var(--ease-bounce);
+}
+.step::after {
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(201,152,74,.06), transparent);
+  transition: left .6s ease;
+  pointer-events: none;
+}
+.step:hover { transform: translateY(-6px) scale(1.02); border-color: rgba(201,152,74,.4); box-shadow: 0 20px 40px rgba(0,0,0,.4), 0 0 30px rgba(201,152,74,.15), inset 0 1px 0 rgba(201,152,74,.1); }
+.step:hover::after { left: 150%; }
+.step-n {
+  font-size: 2.2rem;
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 8px rgba(201,152,74,.45));
+}
+.step-tag {
+  display: inline-block;
+  background: rgba(201,152,74,.1);
+  border: 1px solid rgba(201,152,74,.22);
+  padding: .2rem .65rem;
+  border-radius: 99px;
+  transition: all .3s ease;
+}
+.step:hover .step-tag { background: rgba(201,152,74,.18); border-color: var(--gold); }
+
+/* ── Feat Cards — 3D Hover ───────────────────────────────────────── */
+.feat-card {
+  transition: all .4s var(--ease-bounce);
+  transform-origin: center bottom;
+}
+.feat-card:hover {
+  transform: translateY(-12px) scale(1.07) rotateX(8deg);
+  border-color: var(--gold);
+  box-shadow: 0 24px 48px rgba(0,0,0,.6), 0 0 40px rgba(201,152,74,.35), inset 0 1px 0 rgba(201,152,74,.25);
+}
+.feat-card:hover .fc-nm { color: var(--gold-light); }
+.el-icon { transition: transform .3s ease; }
+.feat-card:hover .el-icon { transform: scale(1.3) rotate(12deg); }
+
+/* ── CTA Section ─────────────────────────────────────────────────── */
+.cta-section {
+  background:
+    radial-gradient(ellipse at 50% 0%,   rgba(139,26,26,.28) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 100%, rgba(80,0,130,.12)  0%, transparent 60%);
+}
+.cta-title {
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-light), var(--gold-pale));
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 7s linear infinite;
+}
+.cta-sigil svg { animation: sigilPulse 6s ease-in-out infinite; }
+
+/* ── Footer ──────────────────────────────────────────────────────── */
+.footer-line { background: linear-gradient(90deg, transparent, rgba(201,152,74,.5), transparent); }
+.footer-brand svg { filter: drop-shadow(0 0 6px rgba(201,152,74,.5)); animation: breathe 4s ease-in-out infinite; }
+
+/* ── Scroll Reveal — with Blur ───────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(36px);
+  filter: blur(6px);
+  transition:
+    opacity .85s cubic-bezier(.16,1,.3,1),
+    transform .85s cubic-bezier(.16,1,.3,1),
+    filter .85s cubic-bezier(.16,1,.3,1);
+}
+.reveal.revealed { opacity: 1; transform: translateY(0); filter: blur(0); }
+
+/* ── R-Panel ─────────────────────────────────────────────────────── */
+.r-panel {
+  transition:
+    border-color .3s ease,
+    box-shadow .3s ease;
+}
+.r-panel:hover {
+  border-color: rgba(201,152,74,.28);
+  box-shadow: 0 8px 40px rgba(0,0,0,.4), 0 0 20px rgba(201,152,74,.06), inset 0 1px 0 rgba(255,255,255,.04);
+}
+
+/* ── Oracle Panel — Dramatic ─────────────────────────────────────── */
+.panel-oracle {
+  border-color: rgba(201,152,74,.42);
+  background: linear-gradient(135deg, rgba(139,26,26,.12) 0%, rgba(17,8,32,.9) 50%, rgba(80,0,130,.08) 100%);
+  animation: oracleBorderGlow 5s ease-in-out infinite;
+}
+.oracle-sigil { animation: sigilPulse 10s ease-in-out infinite; }
+.oracle-summary { font-size: 1.15rem; line-height: 2; }
+
+/* ── Panel H3 — Gradient ─────────────────────────────────────────── */
+.panel-h3 {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border-bottom-color: rgba(201,152,74,.2);
+}
+
+/* ── Reading Cards — Stagger Slide ──────────────────────────────── */
+.reading-card {
+  animation: readingSlide .5s ease both;
+  transition: all .3s ease;
+}
+.reading-card:hover { transform: translateX(8px); border-left-width: 4px; background: rgba(17,8,32,.7); }
+.reading-card:nth-child(1)  { animation-delay: .05s; }
+.reading-card:nth-child(2)  { animation-delay: .12s; }
+.reading-card:nth-child(3)  { animation-delay: .19s; }
+.reading-card:nth-child(4)  { animation-delay: .26s; }
+.reading-card:nth-child(5)  { animation-delay: .33s; }
+.reading-card:nth-child(6)  { animation-delay: .40s; }
+.reading-card:nth-child(7)  { animation-delay: .47s; }
+.reading-card:nth-child(8)  { animation-delay: .54s; }
+.reading-card:nth-child(9)  { animation-delay: .61s; }
+.reading-card:nth-child(10) { animation-delay: .68s; }
+
+/* ── Result Thumb Cards — 3D Mystical Reveal ─────────────────────── */
+.rc-thumb {
+  animation: mysticalReveal .65s ease both;
+}
+.rc-thumb:nth-child(1)  { animation-delay: .1s;  }
+.rc-thumb:nth-child(2)  { animation-delay: .25s; }
+.rc-thumb:nth-child(3)  { animation-delay: .4s;  }
+.rc-thumb:nth-child(4)  { animation-delay: .55s; }
+.rc-thumb:nth-child(5)  { animation-delay: .7s;  }
+.rc-thumb:nth-child(6)  { animation-delay: .85s; }
+.rc-thumb:nth-child(7)  { animation-delay: 1.0s; }
+.rc-thumb:nth-child(8)  { animation-delay: 1.15s;}
+.rc-thumb:nth-child(9)  { animation-delay: 1.3s; }
+.rc-thumb:nth-child(10) { animation-delay: 1.45s;}
+.rc-thumb-img-wrap {
+  box-shadow: 0 10px 40px rgba(0,0,0,.85), 0 0 0 1px rgba(201,152,74,.32), 0 0 30px rgba(201,152,74,.15);
+  transition: all .4s var(--ease-bounce);
+}
+.rc-thumb-img-wrap:hover {
+  transform: translateY(-10px) scale(1.08) rotateY(8deg);
+  box-shadow: 0 24px 60px rgba(0,0,0,.9), 0 0 0 2px rgba(201,152,74,.6), 0 0 50px rgba(201,152,74,.3);
+}
+
+/* ── Advice Box — Golden Frame ───────────────────────────────────── */
+.advice-box {
+  position: relative;
+  border-top: none;
+  padding: 1.5rem 1.75rem;
+  background: linear-gradient(135deg, rgba(139,26,26,.14) 0%, rgba(201,152,74,.06) 100%);
+  border-radius: var(--r-md);
+  border: 1px solid rgba(201,152,74,.3);
+  overflow: hidden;
+}
+.advice-box::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: .75;
+}
+.advice-text { color: var(--gold-pale); font-size: 1.1rem; line-height: 1.9; }
+.advice-label { margin-bottom: .75rem; }
+
+/* ── Closing — Shimmer Gradient Text ────────────────────────────── */
+.closing {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-pale) 40%, var(--gold) 70%, var(--gold-pale) 100%);
+  background-size: 250% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: textShimmer 8s linear infinite;
+  font-size: .95rem; font-style: italic; padding: 1.5rem;
+}
+
+/* ── Themes + Energy ─────────────────────────────────────────────── */
+.theme { transition: all .3s ease; cursor: default; }
+.theme:hover { background: rgba(201,152,74,.2); border-color: var(--gold); transform: translateY(-2px) scale(1.05); box-shadow: 0 4px 16px rgba(201,152,74,.2); }
+.e-badge {
+  font-size: .88rem; padding: .3rem .9rem;
+  background: linear-gradient(135deg, rgba(139,26,26,.3), rgba(80,0,130,.2));
+  border-color: rgba(139,26,26,.6);
+  box-shadow: 0 0 16px rgba(139,26,26,.2), inset 0 1px 0 rgba(255,255,255,.05);
+}
+
+/* ── Spread Options ──────────────────────────────────────────────── */
+.spread-opt { transition: all .4s var(--ease-bounce); }
+.spread-opt:hover { transform: translateY(-5px) scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,.3), 0 0 20px rgba(201,152,74,.1); }
+.spread-opt.selected { box-shadow: 0 0 25px rgba(201,152,74,.2), inset 0 0 20px rgba(201,152,74,.05), 0 0 0 1px rgba(201,152,74,.5); }
+
+/* ── Q-Input ─────────────────────────────────────────────────────── */
+.q-input:focus { border-color: rgba(201,152,74,.6); box-shadow: 0 0 0 3px rgba(201,152,74,.1), 0 0 30px rgba(201,152,74,.08); }
+
+/* ── EQ Chips ────────────────────────────────────────────────────── */
+.eq-chip { position: relative; overflow: hidden; }
+.eq-chip::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, transparent, rgba(201,152,74,.08), transparent);
+  opacity: 0; transition: opacity .3s ease;
+}
+.eq-chip:hover::before { opacity: 1; }
+
+/* ── Mode Tabs ───────────────────────────────────────────────────── */
+.mode-tab.active { box-shadow: 0 0 24px rgba(201,152,74,.2), inset 0 1px 0 rgba(201,152,74,.3), inset 0 0 24px rgba(201,152,74,.06); }
+
+/* ── Card Flip Back — Richer ─────────────────────────────────────── */
+.card-flip-back {
+  background: linear-gradient(155deg, #1e2d7a 0%, #0d1545 40%, #2a0d4a 80%, #1a0a3d 100%);
+}
+.card-flip-back::after {
+  content: "";
+  position: absolute; inset: 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(201,152,74,.15);
+  pointer-events: none;
+}
+.slot-back-star { font-size: 2rem; filter: drop-shadow(0 0 12px rgba(201,152,74,.7)); }
+.card-flip-inner { transition: transform 1s cubic-bezier(.4,0,.2,1); }
+
+/* ── Card Picker Modal ───────────────────────────────────────────── */
+.cp-overlay { background: radial-gradient(ellipse at center, #0e0630 0%, #04010a 65%); }
+.cp-star { font-size: 2.8rem; filter: drop-shadow(0 0 20px rgba(201,152,74,.8)); animation: breathe 2.5s ease-in-out infinite; }
+.cp-card:hover:not(.used) { box-shadow: 0 0 30px rgba(201,152,74,.9), 0 0 60px rgba(201,152,74,.4), 0 0 4px rgba(201,152,74,1); }
+
+/* ── Decorative Ring in Picker ───────────────────────────────────── */
+.cp-deco-ring {
+  position: absolute;
+  top: 50%; left: 50%;
+  width: 700px; height: 700px;
+  transform: translate(-50%,-50%);
+  border-radius: 50%;
+  border: 1px dashed rgba(201,152,74,.07);
+  animation: spin 80s linear infinite reverse;
+  pointer-events: none;
+}
+.cp-deco-ring::before {
+  content: "✦ ARCANUM ✦ THE ORACLE ✦ TAROT ✦ ARCANA ✦ RIDER WAITE SMITH ✦ MYSTICAL ✦";
+  position: absolute;
+  top: -8px; left: 50%;
+  transform: translateX(-50%);
+  font-family: "Cinzel", serif;
+  font-size: .48rem;
+  letter-spacing: .22em;
+  color: rgba(201,152,74,.18);
+  white-space: nowrap;
+}
+
+/* ── Suit Cards ──────────────────────────────────────────────────── */
+.suit-card { transition: all .35s var(--ease-bounce); }
+.suit-card:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 30px rgba(0,0,0,.4); }
+.suit-n {
+  background: linear-gradient(135deg, var(--gold), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 6px rgba(201,152,74,.3));
+}
+
+/* ── Back Button ─────────────────────────────────────────────────── */
+.back-btn { padding: .4rem .85rem; border-radius: var(--r-sm); border: 1px solid transparent; transition: all var(--transition); }
+.back-btn:hover { color: var(--gold); border-color: var(--border); background: rgba(201,152,74,.06); }
+
+/* ── Q-Echo badge ────────────────────────────────────────────────── */
+.q-echo { background: linear-gradient(135deg, rgba(139,26,26,.18), rgba(80,0,130,.12)); border-color: rgba(139,26,26,.4); box-shadow: 0 4px 16px rgba(0,0,0,.2), 0 0 20px rgba(139,26,26,.08); }
+
+/* ── Cam Box ─────────────────────────────────────────────────────── */
+.cam-box { box-shadow: 0 0 60px rgba(0,0,0,.8), 0 0 30px rgba(201,152,74,.06), inset 0 1px 0 rgba(201,152,74,.12); }
+
+/* ── Scrollbar — Gradient ────────────────────────────────────────── */
+::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, rgba(201,152,74,.4), rgba(139,26,26,.4)); box-shadow: 0 0 6px rgba(201,152,74,.2); }
+::-webkit-scrollbar-thumb:hover { background: linear-gradient(to bottom, rgba(201,152,74,.65), rgba(139,26,26,.65)); }
+
+/* ── Section Dark — Gradient Fade ───────────────────────────────── */
+.section-dark {
+  background: linear-gradient(to bottom, rgba(4,1,10,0) 0%, var(--bg-surface) 5%, var(--bg-surface) 95%, rgba(4,1,10,0) 100%);
+}
+
+/* ── Error Banner ────────────────────────────────────────────────── */
+#error-banner { animation: fadeDown .3s ease; box-shadow: 0 8px 32px rgba(0,0,0,.5); }
+
+/* ── Responsive Overrides ────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ht-main { font-size: clamp(2.2rem, 8vw, 2.8rem); }
+  .aurora-layer { filter: blur(80px); }
+  .cp-deco-ring { width: 380px; height: 380px; }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   COMPREHENSIVE RESPONSIVE — Fluid Typography & Layout
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── 1024px — Tablet Landscape ──────────────────────────────────── */
+@media (max-width: 1024px) {
+  .container { padding: 0 1.5rem; }
+  .hero { padding: 110px 2.5rem 70px; gap: 3rem; }
+  .section { padding: 80px 0; }
+  .footer { padding: 3rem 1.5rem 1.25rem; }
+  .h2 { font-size: clamp(1.5rem, 3.5vw, 2.2rem); }
+  .body-text { font-size: clamp(0.95rem, 1.8vw, 1.05rem); }
+}
+
+/* ── 900px — Tablet Portrait ────────────────────────────────────── */
+@media (max-width: 900px) {
+  .container { padding: 0 1.25rem; }
+  .section { padding: 64px 0; }
+  .footer { padding: 2.5rem 1.25rem 1rem; }
+  .footer-inner { max-width: 440px; }
+  .footer-tag { font-size: clamp(0.65rem, 1.5vw, 0.75rem); }
+  .h2 { font-size: clamp(1.4rem, 4vw, 2rem); }
+  .body-text { font-size: 1rem; }
+  .ht-sub { font-size: clamp(0.8rem, 2.2vw, 1rem); }
+  .hero-body { font-size: clamp(0.95rem, 2vw, 1.1rem); }
+  .section-head { margin-bottom: 2.5rem; }
+}
+
+/* ── 640px — Mobile ─────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  html { font-size: 15px; }
+  .container { padding: 0 1rem; }
+  .section { padding: 56px 0; }
+  .footer { padding: 2rem 1rem 1rem; }
+  .footer-inner { max-width: 100%; }
+  .footer-brand { gap: 0.45rem; }
+  .footer-name { font-size: 0.85rem; }
+  .footer-tag { font-size: 0.65rem; letter-spacing: 0.08em; }
+  .footer-disc { font-size: 0.78rem; padding: 0 0.5rem; }
+  .footer-bottom { gap: 0.4rem; row-gap: 0.2rem; }
+  .footer-line { max-width: 100%; margin-bottom: 0.6rem; }
+  .h2 { font-size: clamp(1.3rem, 5vw, 1.7rem); }
+  .body-text { font-size: 0.95rem; }
+  .hero-body { font-size: 0.98rem; }
+  .ht-sub { font-size: 0.82rem; letter-spacing: 0.06em; }
+  .hero-eyebrow { font-size: 0.66rem; }
+  .hero { padding: 100px 1.25rem 60px; }
+  .section-head { margin-bottom: 2rem; padding: 0 1rem; }
+  .feat-card { padding: 1rem 0.75rem; }
+  .fc-nm { font-size: 0.7rem; }
+  .step { padding: 1.25rem 1rem; }
+  .step-h { font-size: 0.95rem; }
+  .step-p { font-size: 0.9rem; }
+  .btn-xl { font-size: 0.85rem; padding: 0.75rem 1.6rem; }
+  .btn-lg { font-size: 0.82rem; padding: 0.6rem 1.25rem; }
+  .reading-wrap { padding: 1.25rem 0.9rem 3rem; }
+  .r-panel { padding: 1.1rem; }
+  .oracle-summary { font-size: 1rem; line-height: 1.85; }
+  .advice-text { font-size: 1rem; }
+  .closing { font-size: 0.88rem; padding: 1.25rem; }
+  .rc-interp { font-size: 0.92rem; }
+  .cam-box { width: calc(100vw - 2rem); padding: 1.25rem 1rem; }
+  .q-input { font-size: 1rem; }
+}
+
+/* ── 480px — Small Mobile ───────────────────────────────────────── */
+@media (max-width: 480px) {
+  html { font-size: 14.5px; }
+  .hero { padding: 90px 1rem 50px; }
+  .ht-main { font-size: clamp(2rem, 9vw, 2.5rem); }
+  .h2 { font-size: clamp(1.2rem, 5.5vw, 1.5rem); }
+  .hero-btns .btn { font-size: 0.82rem; padding: 0.7rem 1.25rem; }
+  .footer-brand-row { gap: 0.75rem; }
+  .footer-bottom {
+    flex-direction: column;
+    gap: 0.3rem;
+    text-align: center;
+  }
+  .footer-sep { display: none; }
+  .footer-az-name { font-size: 0.72rem; }
+  .footer-az-sub { font-size: 0.5rem; letter-spacing: 0.12em; }
+  .nav-inner { padding: 0 1rem; }
+  .nav-brand { font-size: 0.88rem; }
+  .section { padding: 48px 0; }
+  .cta-section { padding: 64px 1rem; }
+  .spread-grid { gap: 0.6rem; }
+  .spread-opt { padding: 0.9rem 0.75rem; }
+  .slot-name { font-size: 0.72rem; }
+  .card-slot { flex: 0 0 96px; min-height: 140px; }
+  .result-actions { gap: 0.6rem; }
+}
+
+/* ── 360px — Very Small ─────────────────────────────────────────── */
+@media (max-width: 360px) {
+  html { font-size: 14px; }
+  .ht-main { font-size: clamp(1.8rem, 10vw, 2.2rem); }
+  .h2 { font-size: 1.2rem; }
+  .feat-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero-pills { flex-wrap: wrap; gap: 0.4rem; }
+  .footer-name { font-size: 0.78rem; }
+}
+
+/* ── Reduced-motion overrides ────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-layer, #sparkle-canvas { display: none; }
+  .ht-main {
+    animation: none !important;
+    background: none;
+    -webkit-text-fill-color: var(--gold-pale);
+    color: var(--gold-pale);
+    filter: none;
+  }
+  .section-head .h2,
+  .phase-head .h2,
+  .cta-title,
+  .closing,
+  .suit-n,
+  .step-n,
+  .panel-h3 {
+    animation: none !important;
+    background: none;
+    -webkit-text-fill-color: var(--gold-pale);
+    color: var(--gold-pale);
+    filter: none;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   ✨  ARCANUM — VISUAL ENHANCEMENT  v3.0
+   ══════════════════════════════════════════════════════════════════ */
+
+/* ── New Keyframes ─────────────────────────────────────────────── */
+@keyframes slotActiveGlow {
+  0%,100% {
+    border-color: rgba(167,139,250,.5);
+    box-shadow: 0 0 16px rgba(167,139,250,.2), inset 0 0 16px rgba(167,139,250,.06);
+  }
+  50% {
+    border-color: rgba(167,139,250,.95);
+    box-shadow: 0 0 38px rgba(167,139,250,.55), 0 0 72px rgba(167,139,250,.1), inset 0 0 26px rgba(167,139,250,.1);
+  }
+}
+@keyframes cardFlashReveal {
+  0%   { box-shadow: 0 0 0 0 rgba(201,152,74,0); }
+  28%  { box-shadow: 0 0 0 8px rgba(201,152,74,.65), 0 0 42px rgba(201,152,74,.45), 0 0 84px rgba(201,152,74,.12); }
+  100% { box-shadow: 0 0 0 0 rgba(201,152,74,0); }
+}
+@keyframes typewriterBlink {
+  0%,49%   { opacity: 1; }
+  50%,100% { opacity: 0; }
+}
+@keyframes themeChipIn {
+  0%  { opacity: 0; transform: scale(.65) translateY(10px); }
+  75% { transform: scale(1.08); }
+  100%{ opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes adviceBoxReveal {
+  0%  { opacity: 0; transform: translateX(-20px); }
+  100%{ opacity: 1; transform: none; }
+}
+@keyframes holoPanFast {
+  0%,100%{ background-position: 0% 50%; }
+  50%    { background-position: 100% 50%; }
+}
+@keyframes pickPulse {
+  0%,100%{ box-shadow: 0 0 20px rgba(139,92,246,.15); }
+  50%    { box-shadow: 0 0 38px rgba(167,139,250,.5), 0 0 64px rgba(139,92,246,.18); }
+}
+@keyframes reticlePulse {
+  0%,100%{ opacity: .65; }
+  50%    { opacity: 1; filter: drop-shadow(0 0 6px rgba(201,152,74,.85)); }
+}
+@keyframes oracleReveal {
+  0%  { opacity: 0; transform: translateY(26px) scale(.97); filter: blur(10px); }
+  100%{ opacity: 1; transform: none; filter: blur(0); }
+}
+@keyframes shimmerWave {
+  0%  { background-position: -200% 0; }
+  100%{ background-position:  200% 0; }
+}
+@keyframes chipFlashAnim {
+  0%   { background: rgba(201,152,74,.06); }
+  40%  { background: rgba(201,152,74,.24); border-color: var(--gold); color: var(--gold-pale); box-shadow: 0 0 22px rgba(201,152,74,.38); }
+  100% { background: rgba(201,152,74,.06); }
+}
+
+/* ── Reading Header — Step Progress Bar ─────────────────────── */
+.reading-header { position: relative; overflow: hidden; }
+.rh-progress {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: rgba(201,152,74,.08);
+}
+.rh-progress-fill {
+  height: 100%;
+  transform-origin: left;
+  background: linear-gradient(90deg, var(--crimson-light), var(--gold), var(--gold-light));
+  box-shadow: 0 0 10px rgba(201,152,74,.75), 0 0 22px rgba(201,152,74,.3);
+  transition: transform .65s cubic-bezier(.4,0,.2,1);
+}
+.rh-progress-fill[data-step="1"] { transform: scaleX(.33); }
+.rh-progress-fill[data-step="2"] { transform: scaleX(.66); }
+.rh-progress-fill[data-step="3"] { transform: scaleX(1); }
+
+/* ── Active Next Slot Glow ──────────────────────────────────── */
+.card-slot.slot-next {
+  animation: slotActiveGlow 1.8s ease-in-out infinite;
+  border-style: solid !important;
+}
+.card-slot.slot-next .card-flip-back {
+  background: linear-gradient(155deg, #1e2d7a 0%, #221060 40%, #2a0d4a 80%, #1a0a3d 100%);
+}
+.card-slot.slot-next .slot-back-star {
+  animation: breathe 1.2s ease-in-out infinite !important;
+  color: rgba(167,139,250,.85) !important;
+  filter: drop-shadow(0 0 18px rgba(167,139,250,.95));
+}
+
+/* ── Card Flip — Gold Flash ─────────────────────────────────── */
+.card-slot.just-flipped { animation: cardFlashReveal .9s ease-out forwards; }
+
+/* ── Typewriter Cursor ──────────────────────────────────────── */
+.tw-cursor {
+  display: inline-block;
+  width: 2px; height: 1.1em;
+  background: var(--gold);
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  border-radius: 1px;
+  animation: typewriterBlink 1s step-end infinite;
+  box-shadow: 0 0 6px rgba(201,152,74,.85);
+}
+
+/* ── Oracle Panel — Dramatic Entrance ─────────────────────── */
+.panel-oracle.oracle-revealed {
+  animation: oracleReveal .9s cubic-bezier(.16,1,.3,1) both,
+             oracleBorderGlow 5s ease-in-out 1s infinite;
+}
+
+/* ── Theme Chips — Staggered Entrance ─────────────────────── */
+.theme.theme-in { animation: themeChipIn .45s cubic-bezier(.34,1.56,.64,1) both; }
+
+/* ── Advice Box — Slide Reveal ────────────────────────────── */
+.advice-box.advice-revealed { animation: adviceBoxReveal .6s ease both; }
+
+/* ── Holographic Card Image Hover ─────────────────────────── */
+.rc-thumb-img-wrap { position: relative; overflow: hidden; }
+.rc-thumb-img-wrap::after {
+  content: "";
+  position: absolute; inset: 0; border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    transparent 20%,
+    rgba(255,255,255,.08) 40%,
+    rgba(201,152,74,.16) 50%,
+    rgba(255,255,255,.08) 60%,
+    transparent 80%
+  );
+  background-size: 300% 300%;
+  animation: holoPanFast 3s linear infinite;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s ease;
+}
+.rc-thumb-img-wrap:hover::after { opacity: 1; }
+
+/* ── Element Bars — Shimmer ───────────────────────────────── */
+.el-bar-fill { background-size: 200% 100%; animation: shimmerWave 3s linear infinite; }
+
+/* ── Camera Reticle — Animated Corners ───────────────────── */
+.ret-corner { animation: reticlePulse 2s ease-in-out infinite; }
+.ret-tr     { animation-delay: .5s; }
+.ret-bl     { animation-delay: 1s; }
+.ret-br     { animation-delay: 1.5s; }
+
+/* Animated scan line inside camera feed */
+.cam-feed-wrap::after {
+  content: "";
+  position: absolute; left: 12%; right: 12%;
+  height: 2px; z-index: 4; pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(201,152,74,.8), transparent);
+  box-shadow: 0 0 8px rgba(201,152,74,.65);
+  animation: scanLine 2.5s linear infinite;
+}
+
+/* ── Pick Button — Pulse Invite ──────────────────────────── */
+.btn-pick.pulse-invite { animation: pickPulse 2.2s ease-in-out infinite; }
+
+/* ── Featured Card — Real Images ─────────────────────────── */
+.feat-card-img {
+  width: 100%;
+  border-radius: 5px; margin-bottom: .35rem;
+  aspect-ratio: 2/3; object-fit: cover;
+  box-shadow: 0 4px 16px rgba(0,0,0,.78);
+  transition: transform .4s var(--ease-bounce), box-shadow .4s ease;
+  display: block;
+}
+.feat-card:hover .feat-card-img {
+  transform: scale(1.07) translateY(-5px);
+  box-shadow: 0 18px 38px rgba(0,0,0,.92), 0 0 26px rgba(201,152,74,.32);
+}
+/* Hide symbol icon when real image is shown */
+.feat-card:has(.feat-card-img) .el-icon { display: none; }
+
+/* ── Spread Option — Selected Text Gradient ──────────────── */
+.spread-opt.selected .sopt-name {
+  background: linear-gradient(135deg, var(--gold-pale), var(--gold-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── EQ Chip — Click Flash ───────────────────────────────── */
+.eq-chip.flash-selected {
+  border-color: var(--gold) !important;
+  background: rgba(201,152,74,.22) !important;
+  color: var(--gold-pale) !important;
+  box-shadow: 0 0 22px rgba(201,152,74,.38) !important;
+  transform: scale(1.03) !important;
+}
+
+/* ── Q List — Hover Slide ────────────────────────────────── */
+.q-list li { transition: color .25s ease, transform .25s ease; }
+.q-list li:hover { color: var(--gold-pale); transform: translateX(7px); }
+
+/* ── Fortune Items — Hover ───────────────────────────────── */
+.fortune-item { transition: color .25s ease, transform .25s ease; }
+.fortune-item:hover { color: var(--gold-pale); transform: translateX(5px); }
+
+/* ── Loading Title/Sub — Transition ──────────────────────── */
+.ld-title, .ld-sub { transition: opacity .22s ease, transform .22s ease; }
+
+/* ── Result Actions — Hover Lift ─────────────────────────── */
+.result-actions .btn:hover:not(:disabled) { transform: translateY(-4px) scale(1.04); }
+
+/* ── Nav CTA — Shimmer Sweep ─────────────────────────────── */
+.nav-cta { position: relative; overflow: hidden; }
+.nav-cta::after {
+  content: "";
+  position: absolute; top: 0; left: -80%;
+  width: 50%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: skewX(-20deg);
+  animation: sweepLight 4.5s ease-in-out infinite;
+  animation-delay: 2.5s;
+  pointer-events: none;
+}
+
+/* ── Result Cards Row — 3D Perspective ───────────────────── */
+.result-cards-row { perspective: 1000px; }
+
+/* ── Reading Card Left Border — Element Color ────────────── */
+.reading-card { border-left-color: var(--accent, var(--border)); }
+.reading-card:hover { border-left-width: 5px; }
+
+/* ── Feat Card — Micro shimmer overlay ───────────────────── */
+.feat-card { overflow: hidden; }
+.feat-card::after {
+  content: "";
+  position: absolute; top: -50%; left: -50%;
+  width: 200%; height: 200%;
+  background: linear-gradient(45deg, transparent 30%, rgba(201,152,74,.07) 50%, transparent 70%);
+  background-size: 200% 200%;
+  animation: holoPanFast 4.5s ease-in-out infinite;
+  pointer-events: none; opacity: 0; transition: opacity .35s ease;
+}
+.feat-card:hover::after { opacity: 1; }
+
+/* ── Reduced motion overrides ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .card-slot.slot-next { animation: none; border-color: rgba(167,139,250,.5); }
+  .tw-cursor { animation: none; opacity: 1; }
+  .el-bar-fill { animation: none; }
+  .ret-corner { animation: none; }
+  .btn-pick.pulse-invite { animation: none; }
+  .cam-feed-wrap::after { animation: none; }
 }

@@ -20,10 +20,33 @@
     <canvas id="bg-canvas" aria-hidden="true"></canvas>
     <div class="noise" aria-hidden="true"></div>
 
+    <!-- Aurora atmospheric background -->
+    <div class="aurora-bg" aria-hidden="true">
+      <div class="aurora-layer"></div>
+      <div class="aurora-layer"></div>
+      <div class="aurora-layer"></div>
+    </div>
+
+    <!-- Cursor sparkle canvas -->
+    <canvas id="sparkle-canvas" aria-hidden="true"></canvas>
+
     <!-- Loading overlay -->
     <div id="loading-overlay" class="hidden">
-      <div class="ld-ring">
-        <span></span><span></span><span></span><span></span>
+      <div class="ld-ring-outer">
+        <div class="ld-halo ld-halo-a"></div>
+        <div class="ld-halo ld-halo-b"></div>
+        <div class="ld-halo ld-halo-c"></div>
+        <div class="ld-ring">
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <div class="ld-oracle-symbol" aria-hidden="true">
+        <svg viewBox="0 0 60 60" fill="none" width="60">
+          <circle cx="30" cy="30" r="28" stroke="#c9984a" stroke-width="0.5" opacity="0.3" stroke-dasharray="3 5"/>
+          <polygon points="30,4 33.5,16 46,16 36,23 39.5,35 30,28 20.5,35 24,23 14,16 26.5,16" fill="none" stroke="#c9984a" stroke-width="0.8" opacity="0.7"/>
+          <circle cx="30" cy="30" r="6" fill="none" stroke="#c9984a" stroke-width="0.7" opacity="0.6"/>
+          <circle cx="30" cy="30" r="2" fill="#c9984a" opacity="0.5"/>
+        </svg>
       </div>
       <p class="ld-title">กำลังปรึกษาไพ่</p>
       <p class="ld-sub">นักพยากรณ์กำลังอ่านสัญลักษณ์&hellip;</p>
@@ -130,6 +153,13 @@
         </div>
         <div class="hero-visual" aria-hidden="true">
           <div class="orbiting-rig">
+            <!-- Floating mystical runes -->
+            <span class="hero-rune" style="top:-8%;left:8%;--rune-dur:7s;--rune-delay:0s;--rune-size:1.4rem">✦</span>
+            <span class="hero-rune" style="top:95%;left:12%;--rune-dur:10s;--rune-delay:-3s;--rune-size:0.9rem">✧</span>
+            <span class="hero-rune" style="top:15%;right:4%;--rune-dur:8.5s;--rune-delay:-5s;--rune-size:1.1rem">⬡</span>
+            <span class="hero-rune" style="top:88%;right:6%;--rune-dur:9s;--rune-delay:-2s;--rune-size:1.3rem">✦</span>
+            <span class="hero-rune" style="top:48%;left:-2%;--rune-dur:11s;--rune-delay:-7s;--rune-size:0.85rem">◈</span>
+            <span class="hero-rune" style="top:38%;right:-1%;--rune-dur:9.5s;--rune-delay:-4s;--rune-size:0.75rem">◉</span>
             <div class="orbit-ring ring-a"></div>
             <div class="orbit-ring ring-b"></div>
             <div class="orbit-ring ring-c"></div>
@@ -532,24 +562,26 @@
       <!-- FOOTER -->
       <footer class="footer">
         <div class="footer-inner">
-          <div class="footer-brand">
-            <svg viewBox="0 0 22 22" fill="none" width="18">
-              <circle
-                cx="11"
-                cy="11"
-                r="10"
-                stroke="#c9984a"
-                stroke-width="0.7"
-              />
-              <polygon
-                points="11,2 13,8 20,8 14.5,12 16.5,18 11,14.5 5.5,18 7.5,12 2,8 9,8"
-                fill="none"
-                stroke="#c9984a"
-                stroke-width="0.8"
-              />
-            </svg>
-            <span class="footer-name">ARCANUM</span>
+          <div class="footer-brand-row">
+            <!-- ARCANUM -->
+            <div class="footer-brand">
+              <svg viewBox="0 0 22 22" fill="none" width="18">
+                <circle cx="11" cy="11" r="10" stroke="#c9984a" stroke-width="0.7" />
+                <polygon points="11,2 13,8 20,8 14.5,12 16.5,18 11,14.5 5.5,18 7.5,12 2,8 9,8"
+                  fill="none" stroke="#c9984a" stroke-width="0.8" />
+              </svg>
+              <span class="footer-name">ARCANUM</span>
+            </div>
+
+            <!-- × -->
+            <span class="footer-cross" aria-hidden="true">&times;</span>
+
+            <!-- AREA ZERO logo + link -->
+            <a class="footer-az-link" href="https://areazeroai.com" target="_blank" rel="noopener noreferrer" aria-label="AREA ZERO AI Software House">
+              <img class="footer-az-img" src="Areazero.png" alt="AREA ZERO" />
+            </a>
           </div>
+
           <p class="footer-tag">ภูมิปัญญาโบราณ &middot; ปัญญาสมัยใหม่</p>
           <p class="footer-disc">
             อ้างอิงจากไพ่ทาโรต์ Rider-Waite-Smith (สาธารณสมบัติ)
@@ -560,6 +592,7 @@
         <div class="footer-line"></div>
         <div class="footer-bottom">
           <span>ARCANUM &copy; 2026</span>
+          <span class="footer-sep" aria-hidden="true">&middot;</span>
           <span>CPE Prediction Fair &middot; March 2, 2026</span>
         </div>
       </footer>
@@ -583,6 +616,10 @@
         </button>
         <span class="rh-title">ARCANUM</span>
         <span class="rh-step" id="rh-step">ขั้นตอนที่ 1 จาก 3</span>
+        <!-- Animated step progress bar -->
+        <div class="rh-progress" aria-hidden="true">
+          <div class="rh-progress-fill" id="rh-progress-fill" data-step="1"></div>
+        </div>
       </header>
 
       <div class="reading-wrap">
@@ -905,20 +942,17 @@
       role="dialog"
       aria-modal="true"
     >
+      <!-- Decorative outer ring -->
+      <div class="cp-deco-ring" aria-hidden="true"></div>
       <!-- Close -->
       <button class="cp-close" id="picker-close" aria-label="Close">✕</button>
 
-      <!-- Center: position info + reversed toggle -->
+      <!-- Center: position info -->
       <div class="cp-center" id="cp-center">
         <div class="cp-star">✦</div>
         <div class="cp-pos-label">กำลังเลือกสำหรับ</div>
         <div class="cp-pos-name" id="picker-pos-name">—</div>
         <div class="cp-progress" id="picker-progress"></div>
-        <label class="picker-rev-toggle cp-rev">
-          <input type="checkbox" id="picker-rev" />
-          <span class="rev-knob"></span>
-          <span class="rev-label">คว่ำ</span>
-        </label>
         <div class="cp-hint">คลิกไพ่ในวงแหวน</div>
       </div>
 

@@ -136,24 +136,27 @@ if (navBrandBtn) navBrandBtn.addEventListener("click", () => showPage("home"));
   const grid = document.getElementById("feat-grid");
   if (!grid || typeof TAROT_CARDS === "undefined") return;
   const elementIcons = {
-    Fire: "🔥",
-    Water: "💧",
-    Air: "💨",
-    Earth: "🌱",
-    Spirit: "✨",
-    Aether: "✨",
+    Fire: "\u25B2",
+    Water: "\u25BC",
+    Air: "\u25C6",
+    Earth: "\u25A0",
+    Spirit: "\u2726",
+    Aether: "\u2726",
   };
   const featured = TAROT_CARDS.filter((c) => c.arcana === "Major").slice(0, 12);
   grid.innerHTML = featured
-    .map(
-      (c) => `
-    <div class="feat-card">
-      <div class="fc-n">${c.number !== null && c.number !== undefined ? c.number : ""}</div>
-      <span class="el-icon">${elementIcons[c.element] || "✦"}</span>
-      <div class="fc-nm">${c.name}</div>
-      <div class="fc-el">${c.element || ""}</div>
-    </div>`,
-    )
+    .map((c) => {
+      const imgSrc = typeof CARD_IMAGES !== "undefined" ? (CARD_IMAGES[c.name] || "") : "";
+      return `<div class="feat-card">
+        <div class="fc-n">${c.number !== null && c.number !== undefined ? c.number : ""}</div>
+        ${imgSrc
+          ? `<img class="feat-card-img" src="${imgSrc}" alt="${c.name}" loading="lazy">`
+          : `<span class="el-icon">${elementIcons[c.element] || "✦"}</span>`
+        }
+        <div class="fc-nm">${c.name}</div>
+        <div class="fc-el">${c.element || ""}</div>
+      </div>`;
+    })
     .join("");
 })();
 
@@ -204,12 +207,49 @@ function setPhase(name) {
   });
   const rh = document.getElementById("rh-step");
   if (rh) rh.textContent = stepLabels[name] ?? "";
+  // Update animated progress bar
+  const _stepMap = { question: "1", spread: "2", result: "3" };
+  const _pfill = document.getElementById("rh-progress-fill");
+  if (_pfill) _pfill.setAttribute("data-step", _stepMap[name] ?? "1");
+  // Highlight next empty card slot when entering spread phase
+  if (name === "spread") setTimeout(highlightNextSlot, 500);
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+let _ldMsgTimer = null;
+const _ldMsgs = [
+  ["กำลังปรึกษาไพ่", "นักพยากรณ์กำลังอ่านสัญลักษณ์\u2026"],
+  ["กำลังวิเคราะห์พลังงาน", "สำรวจธาตุและดวงดาว\u2026"],
+  ["กำลังตีความสัญลักษณ์", "ถอดรหัสความหมายของไพ่ทั้งหมด\u2026"],
+  ["กำลังร้อยเรื่องราว", "ผสานคำทำนายเข้าเป็นหนึ่งเดียว\u2026"],
+  ["เกือบเสร็จแล้ว", "นักพยากรณ์กำลังสรุปคำทำนาย\u2026"],
+];
 function showLoading(v) {
   const ov = document.getElementById("loading-overlay");
   if (ov) ov.classList.toggle("hidden", !v);
+  const title = ov?.querySelector(".ld-title");
+  const sub   = ov?.querySelector(".ld-sub");
+  if (v) {
+    let idx = 0;
+    if (_ldMsgTimer) clearInterval(_ldMsgTimer);
+    _ldMsgTimer = setInterval(() => {
+      idx = (idx + 1) % _ldMsgs.length;
+      const fade = (el, txt) => {
+        if (!el) return;
+        el.style.opacity = "0"; el.style.transform = "translateY(-8px)";
+        setTimeout(() => {
+          el.textContent = txt;
+          el.style.opacity = "1"; el.style.transform = "none";
+        }, 220);
+      };
+      fade(title, _ldMsgs[idx][0]);
+      fade(sub,   _ldMsgs[idx][1]);
+    }, 2800);
+  } else {
+    if (_ldMsgTimer) { clearInterval(_ldMsgTimer); _ldMsgTimer = null; }
+    if (title) { title.textContent = "กำลังปรึกษาไพ่"; title.style.opacity = ""; title.style.transform = ""; }
+    if (sub)   { sub.textContent   = "นักพยากรณ์กำลังอ่านสัญลักษณ์\u2026"; sub.style.opacity = ""; sub.style.transform = ""; }
+  }
 }
 
 function showError(msg) {
@@ -267,13 +307,9 @@ document.querySelectorAll(".eq-chip").forEach((chip) => {
     qInput.value = chip.textContent.trim();
     qInput.dispatchEvent(new Event("input"));
     qInput.focus();
-    // Subtle flash feedback
-    chip.style.borderColor = "var(--gold)";
-    chip.style.color = "var(--gold-pale)";
-    setTimeout(() => {
-      chip.style.borderColor = "";
-      chip.style.color = "";
-    }, 600);
+    // Flash class feedback
+    chip.classList.add("flash-selected");
+    setTimeout(() => chip.classList.remove("flash-selected"), 520);
   });
 });
 
@@ -389,19 +425,28 @@ function placeCardInSlot(i, card, animate = true) {
     slot.classList.remove("pick-empty");
     slot.classList.add("drawn");
     if (animate) {
-      setTimeout(() => flipInner.classList.add("flipped"), 80);
+      setTimeout(() => {
+        flipInner.classList.add("flipped");
+        // Gold flash glow when card lands
+        setTimeout(() => {
+          slot.classList.add("just-flipped");
+          setTimeout(() => slot.classList.remove("just-flipped"), 1000);
+        }, 560);
+      }, 80);
+      // Update next-slot highlight after placement
+      setTimeout(highlightNextSlot, 720);
     } else {
       flipInner.classList.add("flipped");
     }
   } else {
     // Fallback: no flip structure present
     const elementIcons = {
-      Fire: "🔥",
-      Water: "💧",
-      Air: "💨",
-      Earth: "🌱",
-      Spirit: "✨",
-      Aether: "✨",
+      Fire: "\u25B2",
+      Water: "\u25BC",
+      Air: "\u25C6",
+      Earth: "\u25A0",
+      Spirit: "\u2726",
+      Aether: "\u2726",
     };
     slot.innerHTML = `
       <div class="slot-pos">${pos}</div>
@@ -640,6 +685,8 @@ function renderResult(data) {
   if (advEl) advEl.textContent = data.advice ?? "";
   const clEl = document.getElementById("closing-msg");
   if (clEl) clEl.textContent = data.closing_message ?? "";
+  // Orchestrate animated reveal sequence
+  setTimeout(orchestrateResultReveal, 120);
 }
 
 // ── Navigation back/new-reading ──────────────────────────────────────
@@ -730,7 +777,7 @@ async function openCameraModal() {
   // Update slot label
   const pos = spread.positions[camCurrentSlot];
   if (camSlotName)
-    camSlotName.textContent = pos ? pos.name : `Card ${camCurrentSlot + 1}`;
+    camSlotName.textContent = pos ?? `Card ${camCurrentSlot + 1}`;
 
   resetToLiveFeed();
   buildProgressDots();
@@ -815,10 +862,11 @@ function showDetectionResult(result) {
     camResMeta.textContent = camDetectedRev ? "⟳ Reversed" : "Upright";
     camResMeta.style.color = camDetectedRev ? "#e55" : "var(--gold-pale)";
   }
+  const confMap = { high: "สูง", medium: "ปานกลาง", low: "ต่ำ" };
   const conf = result.confidence
-    ? Math.round(result.confidence * 100) + "%"
+    ? confMap[result.confidence] || result.confidence
     : "";
-  if (camResConf) camResConf.textContent = conf ? `Confidence: ${conf}` : "";
+  if (camResConf) camResConf.textContent = conf ? `ความมั่นใจ: ${conf}` : "";
 
   if (camResult) camResult.classList.remove("hidden");
   if (btnUseCam) btnUseCam.disabled = false;
@@ -1041,7 +1089,8 @@ function closePickerModal() {
 
 function selectPickedCard(card) {
   if (!card) return;
-  const reversed = pickerRevCb?.checked || false;
+  // Reversed is randomised (35% chance) — same as drawCards() — so the seeker doesn't choose
+  const reversed = Math.random() < 0.35;
   const fullCard = { ...card, reversed };
 
   app.drawnCards[pickerCurrentSlot] = fullCard;
@@ -1085,4 +1134,337 @@ if (pickerOverlay) {
   pickerOverlay.addEventListener("click", (e) => {
     if (e.target === pickerOverlay) closePickerModal();
   });
+}
+
+// ══════════════════════════════════════════════════════════════════════
+//  VISUAL FX — Sparkle Trail · Button Ripple · Hero Parallax
+// ══════════════════════════════════════════════════════════════════════
+(function initVisualFX() {
+  "use strict";
+
+  // ── Cursor Sparkle Trail ────────────────────────────────────────────
+  const sparkleCanvas = document.getElementById("sparkle-canvas");
+  if (sparkleCanvas) {
+    const sCtx = sparkleCanvas.getContext("2d");
+    let sW, sH;
+    const sparks = [];
+    let lastSparkTime = 0;
+
+    const GOLD_PALETTE = [
+      [245, 228, 192],
+      [232, 192, 112],
+      [201, 152,  74],
+      [255, 220, 130],
+      [180, 120,  50],
+    ];
+
+    function resizeSparkle() {
+      sW = sparkleCanvas.width  = window.innerWidth;
+      sH = sparkleCanvas.height = window.innerHeight;
+    }
+
+    function createSpark(x, y, burst = false) {
+      const color  = GOLD_PALETTE[Math.floor(Math.random() * GOLD_PALETTE.length)];
+      const spread = burst ? 28 : 14;
+      sparks.push({
+        x:      x + (Math.random() - 0.5) * spread,
+        y:      y + (Math.random() - 0.5) * spread,
+        size:   Math.random() * (burst ? 3.5 : 2.2) + 0.5,
+        life:   1,
+        decay:  Math.random() * 0.028 + (burst ? 0.015 : 0.022),
+        vx:     (Math.random() - 0.5) * (burst ? 2.8 : 1.8),
+        vy:     Math.random() * (burst ? -2.2 : -1.5) - 0.4,
+        color,
+        type:   Math.floor(Math.random() * 3),
+        rot:    Math.random() * Math.PI * 2,
+        rotSpd: (Math.random() - 0.5) * 0.18,
+      });
+    }
+
+    function drawSpark(s) {
+      sCtx.save();
+      sCtx.globalAlpha = s.life * 0.88;
+      const [r, g, b] = s.color;
+      sCtx.fillStyle = `rgba(${r},${g},${b},${s.life})`;
+      sCtx.translate(s.x, s.y);
+      sCtx.rotate(s.rot);
+
+      if (s.type === 0) {
+        // ● Circle
+        sCtx.beginPath();
+        sCtx.arc(0, 0, s.size, 0, Math.PI * 2);
+        sCtx.fill();
+      } else if (s.type === 1) {
+        // ✦ 4-point star
+        const r2 = s.size;
+        sCtx.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const a    = (i / 8) * Math.PI * 2;
+          const dist = i % 2 === 0 ? r2 : r2 * 0.35;
+          i === 0
+            ? sCtx.moveTo(Math.cos(a) * dist, Math.sin(a) * dist)
+            : sCtx.lineTo(Math.cos(a) * dist, Math.sin(a) * dist);
+        }
+        sCtx.closePath();
+        sCtx.fill();
+      } else {
+        // ◆ Diamond
+        const d = s.size;
+        sCtx.beginPath();
+        sCtx.moveTo(0, -d);
+        sCtx.lineTo(d * 0.55, 0);
+        sCtx.lineTo(0, d);
+        sCtx.lineTo(-d * 0.55, 0);
+        sCtx.closePath();
+        sCtx.fill();
+      }
+      sCtx.restore();
+    }
+
+    function animateSparks() {
+      sCtx.clearRect(0, 0, sW, sH);
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i];
+        s.x    += s.vx;
+        s.y    += s.vy;
+        s.vy   += 0.045;   // gravity
+        s.life -= s.decay;
+        s.rot  += s.rotSpd;
+        if (s.life <= 0) { sparks.splice(i, 1); continue; }
+        drawSpark(s);
+      }
+      requestAnimationFrame(animateSparks);
+    }
+
+    window.addEventListener("resize", resizeSparkle);
+
+    document.addEventListener("mousemove", (e) => {
+      const now = performance.now();
+      if (now - lastSparkTime > 55) {
+        createSpark(e.clientX, e.clientY);
+        if (now - lastSparkTime < 75) createSpark(e.clientX, e.clientY);
+        lastSparkTime = now;
+      }
+    }, { passive: true });
+
+    // Burst on click
+    document.addEventListener("click", (e) => {
+      for (let i = 0; i < 10; i++) createSpark(e.clientX, e.clientY, true);
+    });
+    // Burst on oracle result reveal
+    window.addEventListener("arcanum:burst", (e) => {
+      const { x, y } = e.detail;
+      for (let i = 0; i < 32; i++) {
+        createSpark(
+          x + (Math.random() - .5) * 260,
+          y + (Math.random() - .5) * 140,
+          true
+        );
+      }
+    });
+
+    resizeSparkle();
+    animateSparks();
+  }
+
+  // ── Button Ripple Effect ────────────────────────────────────────────
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest(".btn");
+    if (!btn || btn.disabled) return;
+    const rect   = btn.getBoundingClientRect();
+    const ripple = document.createElement("span");
+    ripple.className  = "btn-ripple";
+    ripple.style.left = `${e.clientX - rect.left}px`;
+    ripple.style.top  = `${e.clientY - rect.top}px`;
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 750);
+  });
+
+  // ── Hero Parallax (smooth lerp) ─────────────────────────────────────
+  const rig = document.querySelector(".orbiting-rig");
+  if (rig) {
+    let targetX = 0, targetY = 0, curX = 0, curY = 0;
+
+    document.addEventListener("mousemove", (e) => {
+      const cx = window.innerWidth  / 2;
+      const cy = window.innerHeight / 2;
+      targetX  = ((e.clientX - cx) / cx) * 16;
+      targetY  = ((e.clientY - cy) / cy) * 10;
+    }, { passive: true });
+
+    (function lerp() {
+      curX += (targetX - curX) * 0.055;
+      curY += (targetY - curY) * 0.055;
+      rig.style.transform = `translate(${curX.toFixed(2)}px, ${curY.toFixed(2)}px)`;
+      requestAnimationFrame(lerp);
+    })();
+  }
+
+  // ── Shooting Stars on bg-canvas ─────────────────────────────────────
+  const bgCanvas = document.getElementById("bg-canvas");
+  if (bgCanvas) {
+    const bgCtx = bgCanvas.getContext("2d");
+    const shooters = [];
+
+    function spawnShooter() {
+      const W = bgCanvas.width;
+      const H = bgCanvas.height;
+      const angle = Math.random() * 0.4 + 0.15; // shallow downward diagonal
+      const speed = Math.random() * 6 + 5;
+      shooters.push({
+        x:     Math.random() * W * 0.8,
+        y:     Math.random() * H * 0.3,
+        vx:    Math.cos(angle) * speed,
+        vy:    Math.sin(angle) * speed,
+        len:   Math.random() * 80 + 60,
+        life:  1,
+        decay: 0.025 + Math.random() * 0.02,
+      });
+    }
+
+    // Patch into the existing rAF by hooking onto the canvas draw via an overlay draw pass
+    setInterval(() => {
+      if (Math.random() < 0.35) spawnShooter();
+    }, 2200);
+
+    (function drawShooters() {
+      const W = bgCanvas.width;
+      const H = bgCanvas.height;
+      for (let i = shooters.length - 1; i >= 0; i--) {
+        const s = shooters[i];
+        s.x    += s.vx;
+        s.y    += s.vy;
+        s.life -= s.decay;
+        if (s.life <= 0 || s.x > W + 50 || s.y > H + 50) { shooters.splice(i, 1); continue; }
+        bgCtx.save();
+        bgCtx.globalAlpha = s.life * 0.6;
+        const grad = bgCtx.createLinearGradient(s.x, s.y, s.x - s.vx * (s.len / Math.hypot(s.vx, s.vy)), s.y - s.vy * (s.len / Math.hypot(s.vx, s.vy)));
+        grad.addColorStop(0,   `rgba(245,228,192,${s.life})`);
+        grad.addColorStop(0.5, `rgba(201,152,74,${s.life * 0.5})`);
+        grad.addColorStop(1,   "rgba(201,152,74,0)");
+        bgCtx.strokeStyle = grad;
+        bgCtx.lineWidth   = 1.5;
+        bgCtx.beginPath();
+        bgCtx.moveTo(s.x, s.y);
+        bgCtx.lineTo(s.x - s.vx * (s.len / Math.hypot(s.vx, s.vy)), s.y - s.vy * (s.len / Math.hypot(s.vx, s.vy)));
+        bgCtx.stroke();
+        bgCtx.restore();
+      }
+      requestAnimationFrame(drawShooters);
+    })();
+  }
+})();
+
+// ══════════════════════════════════════════════════════════════════════
+//  ARCANUM — VISUAL ENHANCEMENT UTILITIES  v3.0
+// ══════════════════════════════════════════════════════════════════════
+
+// ── Highlight next empty card slot ────────────────────────────────────
+function highlightNextSlot() {
+  document.querySelectorAll(".card-slot").forEach((s) => s.classList.remove("slot-next"));
+  const spread = typeof SPREADS !== "undefined" ? SPREADS[app.spreadType] : null;
+  if (!spread) return;
+  const total = spread.positions.length;
+  let nextIdx = -1;
+  for (let i = 0; i < total; i++) {
+    if (!app.drawnCards[i]) { nextIdx = i; break; }
+  }
+  if (nextIdx < 0) return;
+  const slot = document.getElementById(`slot-${nextIdx}`);
+  if (slot && !slot.classList.contains("drawn")) {
+    slot.classList.add("slot-next");
+  }
+  // Pulse the pick button as an invitation
+  const pickBtn = document.getElementById("btn-pick");
+  if (pickBtn && !pickBtn.classList.contains("hidden")) {
+    pickBtn.classList.remove("pulse-invite");
+    void pickBtn.offsetWidth; // force reflow
+    pickBtn.classList.add("pulse-invite");
+    setTimeout(() => pickBtn.classList.remove("pulse-invite"), 5200);
+  }
+}
+
+// ── Typewriter reveal for oracle summary ──────────────────────────────
+function typewriterEffect(el, text, speed = 20) {
+  if (!el || !text) return;
+  el.textContent = "";
+  const cursor = document.createElement("span");
+  cursor.className = "tw-cursor";
+  el.appendChild(cursor);
+  let i = 0;
+  const type = () => {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i++]), cursor);
+      setTimeout(type, speed + Math.random() * 9);
+    } else {
+      setTimeout(() => {
+        cursor.style.transition = "opacity .3s";
+        cursor.style.opacity = "0";
+        setTimeout(() => cursor.remove(), 350);
+      }, 3800);
+    }
+  };
+  setTimeout(type, 280);
+}
+
+// ── Animated numeric counter ──────────────────────────────────────────
+function animateCounter(el, to, suffix = " / 10", duration = 1300) {
+  if (!el) return;
+  const start = performance.now();
+  const step = (now) => {
+    const t     = Math.min((now - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
+    el.textContent = `${Math.round(to * eased)}${suffix}`;
+    if (t < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+// ── Theme chips staggered entrance ────────────────────────────────────
+function animateThemeChips() {
+  document.querySelectorAll(".theme").forEach((chip, i) => {
+    chip.style.animationDelay = `${i * 0.09}s`;
+    chip.classList.remove("theme-in");
+    void chip.offsetWidth; // reflow to restart animation
+    chip.classList.add("theme-in");
+  });
+}
+
+// ── Orchestrated result section reveal sequence ───────────────────────
+function orchestrateResultReveal() {
+  // Phase 1 (250ms): Oracle panel dramatic entrance + typewriter text
+  setTimeout(() => {
+    const oracle = document.querySelector(".panel-oracle");
+    if (oracle) oracle.classList.add("oracle-revealed");
+    const sumEl = document.getElementById("result-summary");
+    if (sumEl && sumEl.textContent.trim()) {
+      const text = sumEl.textContent.trim();
+      typewriterEffect(sumEl, text, 18);
+    }
+  }, 250);
+
+  // Phase 2 (1100ms): Animated energy score counter + theme chips
+  setTimeout(() => {
+    const scoreEl = document.getElementById("energy-score");
+    if (scoreEl) {
+      const val = parseInt(scoreEl.textContent) || 0;
+      animateCounter(scoreEl, val);
+    }
+    animateThemeChips();
+  }, 1100);
+
+  // Phase 3 (1900ms): Advice box slide-in
+  setTimeout(() => {
+    const advice = document.querySelector(".advice-box");
+    if (advice) advice.classList.add("advice-revealed");
+  }, 1900);
+
+  // Phase 4: Sparkle burst centred on result cards row
+  const row = document.querySelector(".result-cards-row");
+  if (row) {
+    const r = row.getBoundingClientRect();
+    window.dispatchEvent(new CustomEvent("arcanum:burst", {
+      detail: { x: r.left + r.width / 2, y: r.top + r.height / 2 },
+    }));
+  }
 }

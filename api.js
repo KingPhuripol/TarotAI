@@ -213,12 +213,23 @@ function getMockReading(question, spread, cards) {
     if (dist[c.element] !== undefined) dist[c.element]++;
   });
 
-  const cardReadings = cards.map((c, i) => ({
-    position: spread.positions[i],
-    card_name: c.name,
-    orientation: c.reversed ? "Reversed" : "Upright",
-    interpretation: c.reversed ? c.reversed_meaning || c.reversed : c.upright,
-  }));
+  const cardReadings = cards.map((c, i) => {
+    // drawCards() overwrites the `reversed` string with a boolean,
+    // so look up the original card's reversed meaning from TAROT_CARDS.
+    const origCard =
+      typeof TAROT_CARDS !== "undefined"
+        ? TAROT_CARDS.find((t) => t.name === c.name)
+        : null;
+    const reversedMeaning =
+      origCard?.reversed ||
+      "พลังงานของไพ่ใบนี้กำลังทำงานอยู่ภายใน — จงหันมาพิจารณาตัวเอง";
+    return {
+      position: spread.positions[i],
+      card_name: c.name,
+      orientation: c.reversed ? "Reversed" : "Upright",
+      interpretation: c.reversed ? reversedMeaning : c.upright,
+    };
+  });
 
   const energyMapTH = {
     Fire: "การเปลี่ยนแปลง",
